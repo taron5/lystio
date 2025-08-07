@@ -125,8 +125,8 @@ export default function LocationSearch({
   return (
     <div className="relative flex-1" ref={ref}>
       <div className="px-4 py-3 cursor-pointer" onClick={() => setOpen(true)}>
-        <label className="block text-xs text-gray-500 mb-1">Location</label>
-        <div className="flex justify-between items-center">
+        <label className="block text-[14px] text-black mb-1">Location</label>
+        <div >
           {/* @ts-expect-error - AddressAutofill component has type compatibility issues with React 18/19 */}
           <AddressAutofill
             onRetrieve={a => console.log(a, 'retrieved')}
@@ -143,11 +143,10 @@ export default function LocationSearch({
               onChange={handleInputChange}
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
-              className="w-full bg-transparent focus:outline-none text-sm"
+              className="w-full text-black  focus:outline-none text-[16px]"
               autoComplete="address-line1"
             />
           </AddressAutofill>
-          <ChevronDownIcon className="h-5 w-5 text-gray-400 ml-2" />
         </div>
       </div>
 

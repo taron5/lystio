@@ -62,7 +62,7 @@ export default function LocationDropdown({
   return (
     <div
       role="dialog"
-      className="absolute top-full left-0 mt-2 z-50 overflow-hidden rounded-sm border bg-white text-gray-950 shadow-calendar outline-none dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 flex max-h-[913px] w-auto items-start justify-start"
+      className="absolute top-full left-0 mt-2 z-50 overflow-hidden rounded-sm border bg-white text-gray-950 shadow-calendar outline-none dark:border-gray-800 dark:bg-white dark:text-gray-50 flex max-h-[913px] border-0 w-auto items-start justify-start"
     >
       <div className="relative overflow-hidden min-w-max">
         <div className="h-full w-full rounded-[inherit] overflow-hidden">
