@@ -24,7 +24,6 @@ const districts = [
 export default function SearchBar({
   onSearch,
   isExpanded,
-  onToggleExpanded,
   propertySearchMode,
 }: SearchBarProps) {
   const [selectedLocation, setSelectedLocation] = useState('');
@@ -93,7 +92,7 @@ export default function SearchBar({
           'bg-white border border-gray-300 shadow-sm transition-all duration-300',
           isExpanded
             ? 'rounded-2xl shadow-lg border-gray-400'
-            : 'rounded-full hover:shadow-md hover:border-gray-400 pl-6'
+            : 'rounded-full hover:shadow-md hover:border-gray-400'
         )}
       >
           <div className="flex flex-col lg:flex-row lg:items-center ">
@@ -103,7 +102,7 @@ export default function SearchBar({
                 isExpanded={isExpanded}
               />
             </div>
-            <div className={' bg-[#F7F7FD]  flex flex-col lg:flex-row lg:items-center rounded-r-full pr-4'}>
+            <div className={'flex flex-col lg:flex-row lg:items-center rounded-r-full pr-4'}>
               <CategoryDropdown
                 data={districts}
                 selected={selectedDistricts}
@@ -120,16 +119,7 @@ export default function SearchBar({
                 </button>
               </div>
             </div>
-
           </div>
-
-          {/* Verified listings info */}
-          {/*<div className="mt-4 text-sm text-gray-600 text-center sm:text-left">*/}
-          {/*  <span className="font-medium">*/}
-          {/*    {verifiedListingsCount.toLocaleString()}*/}
-          {/*  </span>{' '}*/}
-          {/*  verified listings for apartments, houses, offices, and more*/}
-          {/*</div>*/}
       </div>
     </div>
   );

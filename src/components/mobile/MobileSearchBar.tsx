@@ -1,79 +1,83 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SearchBarProps, SearchFilters } from '@/types';
-import SearchBar from '@/components/mobile/SearchBar';
+import { Boundary, MobileSearchBarProps, RecentSearch,  } from '@/types';
+import InputSearch from '@/components/mobile/InputSearch';
+import MobileLocationDropDown from '@/components/mobile/MobileLocationDropDown';
+import LocationSearch from '@/components/search/LocationSearch';
 
 export default function MobileSearchBar({
-  onSearch,
-  propertySearchMode,
-}: SearchBarProps) {
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [selectedBoundaryIds, setSelectedBoundaryIds] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('apartments');
-  const [selectedPrice, setSelectedPrice] = useState('');
+  isOpen,
+  openMenu,
+}: MobileSearchBarProps) {
 
-  const [verifiedListingsCount, setVerifiedListingsCount] = useState(0);
-
-  // Fetch verified listings count when filters change
-  useEffect(() => {
-    async function updateListingsCount() {
-      try {
-        const filters: SearchFilters = {
-          withinId: selectedBoundaryIds,
-          rentType: [propertySearchMode],
-          category: selectedCategory,
-          priceRange: selectedPrice,
-        };
-
-        const response = await fetch(
-          'https://api.lystio.co/tenement/search/count',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(filters),
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setVerifiedListingsCount(data.count || 0);
-        } else {
-          setVerifiedListingsCount(0);
-        }
-      } catch {
-        setVerifiedListingsCount(0);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+  const [boundaries, setBoundaries] = useState<Boundary[]>([]);
+  const [show, setShow] = useState(false);
+  const [initialValue, setInitialValue] = useState('');
+  const fetchRecentSearches = async () => {
+    try {
+      const response = await fetch('https://api.lystio.co/geo/search/recent');
+      if (response.ok) {
+        const data = await response.json();
+        setRecentSearches(data);
       }
+    } catch (error) {
+      console.error('Failed to fetch recent searches:', error);
     }
-
-    updateListingsCount();
-  }, [
-    propertySearchMode,
-    selectedBoundaryIds,
-    selectedCategory,
-    selectedPrice,
-  ]);
-
-  // Handle location select from LocationSearch
-  const handleLocationSelect = (location: string, boundaryId?: string) => {
-    setSelectedLocation(location);
-    setSelectedBoundaryIds(boundaryId ? [boundaryId] : []);
   };
 
-  // Trigger search
-  const handleSearch = () => {
-    const filters: SearchFilters = {
-      withinId: selectedBoundaryIds,
-      rentType: [propertySearchMode],
-      category: selectedCategory,
-      priceRange: selectedPrice,
-    };
-    onSearch(filters);
+  const fetchBoundaries = async () => {
+    try {
+      const response = await fetch('https://api.lystio.co/geo/boundary');
+      if (response.ok) {
+        const data = await response.json();
+        setBoundaries(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch boundaries:', error);
+    }
+  };
+  useEffect(() => {
+    fetchRecentSearches();
+    fetchBoundaries();
+  }, []);
+
+  const handleInputFocus = () => {
+    if (!isOpen) {
+      openMenu();
+    }
   };
 
+  const showValue = (e) => {
+    setShow(true);
+    document.body.style.overflow = "hidden";
+    setInitialValue(e.target.value);
+  }
+
+  const hideShowPanel = () => {
+    setShow(false);
+    document.body.style.overflow = "";
+    }
   return (
-    <div className="relative">
-      <SearchBar/>
-    </div>
+    <>
+      {!show && <InputSearch handleInputFocus={handleInputFocus} onChange={showValue}/>}
+        <LocationSearch
+          onLocationSelect={()=>{}}
+          isExpanded={isOpen}
+          isMobile={true}
+        />
+      {show && (
+        <MobileLocationDropDown
+          initialValue={initialValue}
+          sections={boundaries}
+          closeMenu={()=>{
+            hideShowPanel()
+          }}
+          defaultSelectedId="bregenz"
+          onSelect={item => console.log('Selected:', item)}
+        />
+      )}
+    </>
   );
 }

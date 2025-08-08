@@ -1,52 +1,75 @@
-import { useState } from "react";
+'use client';
+import { useState } from 'react';
+import { MobileMenuProps } from '@/types';
 
-export default function MobileMenu() {
-  const [open, setOpen] = useState(false);
+export default function MobileMenu({ open, closeMenu }: MobileMenuProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const menuActionHandler = () => {
+    if (open) {
+      closeMenu();
+    } else {
+      setIsMenuOpen(!isMenuOpen);
+    }
+  };
   return (
-    <div className="relative z-50">
+    <div className="relative z-10">
       <button
-        className="relative w-8 h-8 flex flex-col justify-center items-center group"
-        onClick={() => setOpen(!open)}
+        onClick={menuActionHandler}
+        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-expanded={open}
+        className="relative flex h-8 w-8 items-center justify-center"
       >
         <span
-          className={`absolute w-6 h-0.5 bg-black transform transition duration-300 ease-in-out
-            ${"-translate-y-2"}`}
+          className={[
+            'absolute h-0.5 w-6 bg-black transition-all duration-300 ease-in-out origin-center',
+            open ? 'translate-y-0 rotate-45' : '-translate-y-2 rotate-0',
+          ].join(' ')}
         />
         <span
-          className={`absolute w-6 h-0.5 bg-black transition-opacity duration-200
-            ${"opacity-100"}`}
+          className={[
+            'absolute h-0.5 w-6 bg-black transition-all duration-200 ease-in-out',
+            open ? 'opacity-0' : 'opacity-100',
+          ].join(' ')}
         />
         <span
-          className={`absolute w-6 h-0.5 bg-black transform transition duration-300 ease-in-out
-            ${"translate-y-2"}`}
+          className={[
+            'absolute h-0.5 w-6 bg-black transition-all duration-300 ease-in-out origin-center',
+            open ? 'translate-y-0 -rotate-45' : 'translate-y-2 rotate-0',
+          ].join(' ')}
         />
       </button>
 
-      {open && (
+      {isMenuOpen && (
         <div
           className={`fixed top-0 right-0 h-full w-2/4 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-    ${open ? "translate-x-0" : "translate-x-full"}`}
+      ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="p-6">
-            {/* Separate Close Button */}
             <button
               className="absolute top-4 right-4 text-2xl text-gray-600 hover:text-black"
-              onClick={() => setOpen(false)}
+              onClick={() => setIsMenuOpen(false)}
             >
               &times;
             </button>
 
             <ul className="mt-12 space-y-4 text-lg">
-              <li className="hover:text-purple-600 text-gray-500 cursor-pointer">Option 1</li>
-              <li className="hover:text-purple-600 text-gray-500  cursor-pointer">Option 2</li>
-              <li className="hover:text-purple-600 text-gray-500  cursor-pointer">Option 3</li>
-              <li className="hover:text-purple-600 text-gray-500  cursor-pointer">Option 4</li>
+              <li className="hover:text-purple-600 text-gray-500 cursor-pointer">
+                Option 1
+              </li>
+              <li className="hover:text-purple-600 text-gray-500  cursor-pointer">
+                Option 2
+              </li>
+              <li className="hover:text-purple-600 text-gray-500  cursor-pointer">
+                Option 3
+              </li>
+              <li className="hover:text-purple-600 text-gray-500  cursor-pointer">
+                Option 4
+              </li>
             </ul>
           </div>
         </div>
       )}
-
     </div>
   );
 }

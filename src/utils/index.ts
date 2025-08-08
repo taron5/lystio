@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const useMobile = (breakpoint = 768) => {
+const useMobile = (breakpoint = 1024) => {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const handleResize = () => {
@@ -12,5 +12,7 @@ const useMobile = (breakpoint = 768) => {
   }, []);
   return isMobile;
 }
-
-export { useMobile };
+const cleanDistrictName = (input: string): string => {
+  return input.replace(/^\d+\.\s*-\s*/, "").trim();
+};
+export { useMobile, cleanDistrictName };

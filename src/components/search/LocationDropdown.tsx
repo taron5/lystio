@@ -1,6 +1,8 @@
 'use client';
 
 import { Boundary } from '@/types';
+import { useState } from 'react';
+import { cleanDistrictName } from '@/utils';
 
 const POPULAR_LOCATIONS = [
   {
@@ -31,6 +33,7 @@ const OTHER_LOCATIONS = [
 
 interface LocationDropdownProps {
   open: boolean;
+  isMobile: boolean;
   showRecentSearches: boolean;
   showDistrictPanel: boolean;
   selectedRegion: string | null;
@@ -47,22 +50,38 @@ export default function LocationDropdown({
   boundaries,
   handleLocationClick,
   handleRegionClick,
+  isMobile = false
 }: LocationDropdownProps) {
-  // Filter boundaries for districts of selected region
   const getDistrictsForRegion = (regionId: string) => {
     return boundaries.filter(
       b => b.type === 'district' && b.parent === regionId
     );
   };
-
-  if (!open || showRecentSearches) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  if (!open) {
     return null;
   }
+  const clickOnBoundaries = ({
+    name,
+    id,
+    index,
+  }: {
+    name: string;
+    id: string;
+    index: number;
+  }) => {
+    setActiveIndex(index);
+    handleRegionClick(name, id);
+  };
 
+  const selectAll = (index: number) => {};
   return (
     <div
       role="dialog"
-      className="absolute top-full left-0 mt-2 z-50 overflow-hidden rounded-sm border bg-white text-gray-950 shadow-calendar outline-none dark:border-gray-800 dark:bg-white dark:text-gray-50 flex max-h-[913px] border-0 w-auto items-start justify-start"
+      className={`absolute ${isMobile ? 'top-[101px] justify-self-center' : 'top-full'}  left-0 mt-2 z-50 overflow-hidden rounded-sm
+             bg-white text-gray-950 shadow-lg shadow-gray-400/50
+             outline-none dark:bg-white dark:text-gray-50
+             flex max-h-[913px] border-0 w-auto items-start justify-start`}
     >
       <div className="relative overflow-hidden min-w-max">
         <div className="h-full w-full rounded-[inherit] overflow-hidden">
@@ -78,7 +97,7 @@ export default function LocationDropdown({
                     {POPULAR_LOCATIONS.map(location => (
                       <li
                         key={location.id}
-                        className="flex max-w-[102px] flex-col gap-2 cursor-pointer"
+                        className="flex w-[70px] md:w-[90px] lg:w-[109px] flex-col gap-2 cursor-pointer"
                         onClick={() =>
                           handleLocationClick(location.name, location.id)
                         }
@@ -102,25 +121,28 @@ export default function LocationDropdown({
                   </ul>
                 </div>
 
-                {/* Other Locations */}
                 <div className="cursor-pointer rounded-md bg-white shadow-popular-location mb-4 space-y-2 px-4 py-3">
                   <span className="text-sm font-semibold text-black">
                     Other places
                   </span>
                   <ul className="flex flex-col gap-2 py-2">
-                    {OTHER_LOCATIONS.map(location => (
+                    {boundaries.map((location, index) => (
                       <li
                         key={location.id}
                         className="flex items-center justify-between p-2 hover:bg-gray-100 cursor-pointer"
                         onClick={() =>
-                          handleRegionClick(location.name, location.id)
+                          clickOnBoundaries({
+                            name: location.name,
+                            id: location.id,
+                            index,
+                          })
                         }
                       >
                         <div className="flex items-center gap-4">
                           <img
                             alt={location.name}
                             className="h-12 w-12 rounded-sm object-cover"
-                            src={location.img}
+                            src={location?.img}
                             onError={e => {
                               (e.target as HTMLImageElement).src =
                                 `https://via.placeholder.com/48x48/e5e7eb/6b7280?text=${location.name.charAt(0)}`;
@@ -161,26 +183,49 @@ export default function LocationDropdown({
             Bezirke in{' '}
             {OTHER_LOCATIONS.find(loc => loc.id === selectedRegion)?.name}
           </p>
-          <div className="px-4 space-y-2">
-            {getDistrictsForRegion(selectedRegion).map(district => (
-              <label
-                key={district.id}
-                className="flex items-center space-x-3 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  onChange={e => {
-                    if (e.target.checked) {
-                      handleLocationClick(district.name, district.id);
-                    }
-                  }}
-                />
-                <span className="text-sm text-gray-700">
-                  {district.name}
-                </span>
-              </label>
-            ))}
+          <div className={`px-4 space-y-2 ${isMobile ? 'absolute top-0 left-0 bg-white w-full' : ''}`}>
+            {activeIndex !== null &&
+              activeIndex > -1 &&
+              boundaries[activeIndex] && (
+                <>
+                  <label className="flex items-center space-x-3 cursor-pointer font-semibold">
+                    <input
+                      type="checkbox"
+                      className="w-5 h-5 border-gray-300 text-blue-600 focus:ring-blue-500"
+                      onChange={e => {
+                        selectAll(activeIndex);
+                      }}
+                    />
+                    <span className="text-[16px] text-black">Select All</span>
+                  </label>
+
+                  {/* District Checkboxes */}
+                  {boundaries[activeIndex].children.map(district => (
+                    <label
+                      key={district.id}
+                      className="flex items-center space-x-3 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 border-gray-300 text-blue-600 focus:ring-blue-500"
+                        onChange={e => {
+                          if (e.target.checked) {
+                            handleLocationClick(district.name, district.id);
+                          }
+                        }}
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-[16px] text-black">
+                          {cleanDistrictName(district.name)}
+                        </span>
+                        <span className="text-sm text-gray-700">
+                          {district.postal_code}
+                        </span>
+                      </div>
+                    </label>
+                  ))}
+                </>
+              )}
           </div>
         </div>
       )}

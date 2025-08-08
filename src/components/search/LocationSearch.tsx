@@ -1,9 +1,5 @@
 'use client';
 
-import {
-  ChevronDownIcon,
-  ClockIcon,
-} from '@heroicons/react/24/outline';
 import { useEffect, useRef, useState } from 'react';
 import { LocationSearchProps, RecentSearch, Boundary } from '@/types';
 import LocationDropdown from './LocationDropdown';
@@ -16,6 +12,7 @@ const MAPBOX_TOKEN =
 export default function LocationSearch({
   onLocationSelect,
   isExpanded,
+  isMobile = false,
 }: LocationSearchProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -25,7 +22,6 @@ export default function LocationSearch({
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [showDistrictPanel, setShowDistrictPanel] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
   // Fetch recent searches and boundaries when component mounts
   useEffect(() => {
     fetchRecentSearches();
@@ -36,7 +32,7 @@ export default function LocationSearch({
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
+        // setOpen(false);
         setShowRecentSearches(false);
         setShowDistrictPanel(false);
         setSelectedRegion(null);
@@ -45,13 +41,10 @@ export default function LocationSearch({
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
-
   // Open dropdown when expanded
   useEffect(() => {
-    if (isExpanded && !query) {
-      setOpen(true);
-    }
-  }, [isExpanded, query]);
+      setOpen(isExpanded);
+  }, [isExpanded]);
 
   const fetchRecentSearches = async () => {
     try {
@@ -76,7 +69,6 @@ export default function LocationSearch({
       console.error('Failed to fetch boundaries:', error);
     }
   };
-
   const handleLocationClick = (location: string, boundaryId?: string) => {
     setQuery(location);
     onLocationSelect(location, boundaryId);
@@ -105,14 +97,12 @@ export default function LocationSearch({
       setOpen(true);
     }
   };
-
   const handleInputFocus = () => {
     setOpen(true);
     if (!query || query.length === 0) {
       setShowRecentSearches(true);
     }
   };
-
   const handleInputBlur = () => {
     setTimeout(() => {
       if (!ref.current?.contains(document.activeElement)) {
@@ -121,12 +111,12 @@ export default function LocationSearch({
     }, 100);
   };
 
-
   return (
-    <div className="relative flex-1" ref={ref}>
-      <div className="px-4 py-3 cursor-pointer" onClick={() => setOpen(true)}>
+    <div className="flex-1" ref={ref}>
+      {!isMobile &&
+        <div className="px-4 pl-6 py-3 cursor-pointer rounded-l-full hover:bg-[#F7F7FD]" onClick={() => setOpen(true)}>
         <label className="block text-[14px] text-black mb-1">Location</label>
-        <div >
+        <div>
           {/* @ts-expect-error - AddressAutofill component has type compatibility issues with React 18/19 */}
           <AddressAutofill
             onRetrieve={a => console.log(a, 'retrieved')}
@@ -149,42 +139,43 @@ export default function LocationSearch({
           </AddressAutofill>
         </div>
       </div>
+      }
 
       {/* Recent Searches Dropdown */}
-      {showRecentSearches && recentSearches.length > 0 && (
-        <div className="absolute w-fit top-full left-0 mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-50 max-h-60 overflow-y-auto">
-          <div className="p-2">
-            <div className="flex items-center px-3 py-2 text-xs text-gray-500 border-b border-gray-100">
-              <ClockIcon className="h-4 w-4 mr-2" />
-              Recent Searches
-            </div>
-            <div className="mt-1">
-              {recentSearches.slice(0, 5).map(search => (
-                <button
-                  key={search.id}
-                  onClick={() => handleLocationClick(search.name)}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center justify-between group"
-                >
-                  <span>{search.name}</span>
-                  <div className="text-xs text-gray-400 group-hover:text-gray-600">
-                    {search.type}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <LocationDropdown
-        open={open}
-        showRecentSearches={showRecentSearches}
-        showDistrictPanel={showDistrictPanel}
-        selectedRegion={selectedRegion}
-        boundaries={boundaries}
-        handleLocationClick={handleLocationClick}
-        handleRegionClick={handleRegionClick}
-      />
+      {/*{showRecentSearches && recentSearches.length > 0 && (*/}
+      {/*  <div className="absolute w-fit top-full left-0 mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-50 max-h-60 overflow-y-auto">*/}
+      {/*    <div className="p-2">*/}
+      {/*      <div className="flex items-center px-3 py-2 text-xs text-gray-500 border-b border-gray-100">*/}
+      {/*        <ClockIcon className="h-4 w-4 mr-2" />*/}
+      {/*        Recent Searches*/}
+      {/*      </div>*/}
+      {/*      <div className="mt-1">*/}
+      {/*        {recentSearches.slice(0, 5).map(search => (*/}
+      {/*          <button*/}
+      {/*            key={search.id}*/}
+      {/*            onClick={() => handleLocationClick(search.name)}*/}
+      {/*            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center justify-between group"*/}
+      {/*          >*/}
+      {/*            <span>{search.name}</span>*/}
+      {/*            <div className="text-xs text-gray-400 group-hover:text-gray-600">*/}
+      {/*              {search.type}*/}
+      {/*            </div>*/}
+      {/*          </button>*/}
+      {/*        ))}*/}
+      {/*      </div>*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
+      {/*)}*/}
+        <LocationDropdown
+          open={open}
+          isMobile={isMobile}
+          showRecentSearches={showRecentSearches}
+          showDistrictPanel={showDistrictPanel}
+          selectedRegion={selectedRegion}
+          boundaries={boundaries}
+          handleLocationClick={handleLocationClick}
+          handleRegionClick={handleRegionClick}
+        />
     </div>
   );
 }

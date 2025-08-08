@@ -30,7 +30,7 @@ export default function CategoryDropdown({ title = "Category", selected, setSele
   };
 
   return (
-    <div className="relative min-w-[200px] h-full max-w-5xl mx-auto p-4">
+    <div className="hover:bg-[#F7F7FD] relative min-w-[200px] h-full max-w-5xl mx-auto p-4">
       <div
         className="border-r border-purple-100 cursor-pointer"
         onClick={() => setOpen(!open)}
